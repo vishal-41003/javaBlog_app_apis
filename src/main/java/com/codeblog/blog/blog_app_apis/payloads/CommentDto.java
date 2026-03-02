@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class CommentDto {
-    private  int id;
+    private  Integer id;
     @NotBlank(message = "Comment content is required")
     @Size(min = 2, max = 500)
     private String content;

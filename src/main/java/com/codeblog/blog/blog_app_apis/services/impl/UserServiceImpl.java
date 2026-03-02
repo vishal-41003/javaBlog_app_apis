@@ -3,11 +3,11 @@ package com.codeblog.blog.blog_app_apis.services.impl;
 
 import com.codeblog.blog.blog_app_apis.entities.User;
 import com.codeblog.blog.blog_app_apis.exceptions.ResourceNotFoundException;
+import com.codeblog.blog.blog_app_apis.mapper.UserMapper;
 import com.codeblog.blog.blog_app_apis.payloads.UserDto;
 import com.codeblog.blog.blog_app_apis.repository.UserRepo;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import com.codeblog.blog.blog_app_apis.services.UserService;
 import org.springframework.stereotype.Service;
 
@@ -19,23 +19,33 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
 
     private final UserRepo userRepo;
-    private final ModelMapper modelMapper;
+    private final UserMapper userMapper;
 
     @Override
     public UserDto createUser(UserDto userDto) {
+        if (userRepo.existsByEmail(userDto.getEmail())) {
+            throw new RuntimeException("Email already registered!");
+        }
 
-        User user = modelMapper.map(userDto, User.class);
+        User user = userMapper.toEntity(userDto);
 
         User savedUser = userRepo.save(user);
 
-        return modelMapper.map(savedUser, UserDto.class);
+        return userMapper.toDto(savedUser);
     }
 
     @Override
     public UserDto updateUser(UserDto userDto, Integer userId) {
 
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "Id", userId));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User", "Id", userId));
+
+        if (!user.getEmail().equals(userDto.getEmail()) &&
+                userRepo.existsByEmail(userDto.getEmail())) {
+
+            throw new RuntimeException("Email already registered!");
+        }
 
         user.setName(userDto.getName());
         user.setEmail(userDto.getEmail());
@@ -44,7 +54,7 @@ public class UserServiceImpl implements UserService {
 
         User updatedUser = userRepo.save(user);
 
-        return modelMapper.map(updatedUser, UserDto.class);
+        return userMapper.toDto(updatedUser);
     }
 
     @Override
@@ -52,9 +62,10 @@ public class UserServiceImpl implements UserService {
     public UserDto getUserByID(Integer userId) {
 
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "Id", userId));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User", "Id", userId));
 
-        return modelMapper.map(user, UserDto.class);
+        return userMapper.toDto(user);
     }
 
     @Override
@@ -63,7 +74,7 @@ public class UserServiceImpl implements UserService {
 
         return userRepo.findAll()
                 .stream()
-                .map(user -> modelMapper.map(user, UserDto.class))
+                .map(userMapper::toDto)
                 .toList();
     }
 
@@ -71,7 +82,8 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Integer userId) {
 
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "Id", userId));
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User", "Id", userId));
 
         userRepo.delete(user);
     }

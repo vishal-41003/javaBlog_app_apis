@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+target/
+*.log
+*.class
+
+# Ignore uploaded images
+images/

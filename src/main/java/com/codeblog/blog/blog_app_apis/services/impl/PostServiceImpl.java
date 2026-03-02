@@ -1,5 +1,6 @@
 package com.codeblog.blog.blog_app_apis.services.impl;
 
+import com.codeblog.blog.blog_app_apis.mapper.PostMapper;
 import com.codeblog.blog.blog_app_apis.repository.CategoryRepo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -12,7 +13,6 @@ import com.codeblog.blog.blog_app_apis.payloads.PostResponse;
 import com.codeblog.blog.blog_app_apis.repository.PostRepo;
 import com.codeblog.blog.blog_app_apis.repository.UserRepo;
 import com.codeblog.blog.blog_app_apis.services.PostService;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -28,9 +28,9 @@ import java.util.List;
 public class PostServiceImpl implements PostService {
 
     private final PostRepo postRepo;
-    private final ModelMapper modelMapper;
     private final UserRepo userRepo;
     private final CategoryRepo categoryRepo;
+    private final PostMapper postMapper;
 
     @Override
     public PostDto createPost(PostDto postDto, Integer userId, Integer categoryId) {
@@ -41,7 +41,7 @@ public class PostServiceImpl implements PostService {
         Category category = categoryRepo.findById(categoryId)
                 .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
 
-        Post post = modelMapper.map(postDto, Post.class);
+        Post post = postMapper.toEntity(postDto);
 
         post.setImageName("default.png");
         post.setAddedDate(LocalDateTime.now());
@@ -50,10 +50,8 @@ public class PostServiceImpl implements PostService {
 
         Post savedPost = postRepo.save(post);
 
-        return modelMapper.map(savedPost, PostDto.class);
+        return postMapper.toDto(savedPost);
     }
-
-
 
     @Override
     public PostDto updatePost(PostDto postDto, Integer postId) {
@@ -63,13 +61,14 @@ public class PostServiceImpl implements PostService {
 
         post.setTitle(postDto.getTitle());
         post.setContent(postDto.getContent());
+
         if (postDto.getImageName() != null) {
             post.setImageName(postDto.getImageName());
         }
 
         Post updatedPost = postRepo.save(post);
 
-        return modelMapper.map(updatedPost, PostDto.class);
+        return postMapper.toDto(updatedPost);
     }
 
     @Override
@@ -96,7 +95,7 @@ public class PostServiceImpl implements PostService {
 
         List<PostDto> postDtos = pagePost.getContent()
                 .stream()
-                .map(post -> modelMapper.map(post, PostDto.class))
+                .map(postMapper::toDto)
                 .toList();
 
         PostResponse response = new PostResponse();
@@ -117,7 +116,7 @@ public class PostServiceImpl implements PostService {
         Post post = postRepo.findById(postId)
                 .orElseThrow(() -> new ResourceNotFoundException("Post", "postId", postId));
 
-        return modelMapper.map(post, PostDto.class);
+        return postMapper.toDto(post);
     }
 
     @Override
@@ -129,7 +128,7 @@ public class PostServiceImpl implements PostService {
 
         return postRepo.findByCategory(category)
                 .stream()
-                .map(post -> modelMapper.map(post, PostDto.class))
+                .map(postMapper::toDto)
                 .toList();
     }
 
@@ -142,7 +141,7 @@ public class PostServiceImpl implements PostService {
 
         return postRepo.findByUser(user)
                 .stream()
-                .map(post -> modelMapper.map(post, PostDto.class))
+                .map(postMapper::toDto)
                 .toList();
     }
 
@@ -152,7 +151,7 @@ public class PostServiceImpl implements PostService {
 
         return postRepo.findByTitleContainingIgnoreCase(keyword)
                 .stream()
-                .map(post -> modelMapper.map(post, PostDto.class))
+                .map(postMapper::toDto)
                 .toList();
     }
 }
