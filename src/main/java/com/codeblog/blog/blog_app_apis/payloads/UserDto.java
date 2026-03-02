@@ -13,17 +13,24 @@ public class UserDto {
 
     private int id;
 
-    @NotEmpty
-    @Size(min=4, message = "user must be min of 4 character !!")
+    @NotBlank(message = "Name is required")
+    @Size(min = 4, max = 50, message = "Name must be between 4 and 50 characters")
+    @Pattern(regexp = "^[A-Za-z ]+$", message = "Name must contain only letters")
     private String name;
 
-    @Email(message = "Email address is not valid ")
+    @NotBlank(message = "Email is required")
+    @Email(message = "Email address is not valid")
     private String email;
 
-    @NotEmpty
-    @Size(min = 3 , max = 10 , message = "Password must be min of 3 char and max  of 10 cahars !!")
+    @NotBlank(message = "Password is required")
+    @Size(min = 6, max = 20, message = "Password must be between 6 and 20 characters")
+    @Pattern(
+            regexp = "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!]).+$",
+            message = "Password must contain uppercase, lowercase, number and special character"
+    )
     private String password;
 
-    @NotEmpty
+    @NotBlank(message = "About is required")
+    @Size(max = 500, message = "About cannot exceed 500 characters")
     private String about;
 }

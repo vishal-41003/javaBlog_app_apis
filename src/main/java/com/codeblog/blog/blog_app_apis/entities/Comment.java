@@ -1,6 +1,5 @@
-package com.codeblog.blog.blog_app_apis.controller;
+package com.codeblog.blog.blog_app_apis.entities;
 
-import com.codeblog.blog.blog_app_apis.entities.Post;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -11,10 +10,15 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class Comment {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
+
+    @Column(nullable = false, length = 1000)
     private String content;
-    @ManyToOne
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 }

@@ -3,62 +3,63 @@ package com.codeblog.blog.blog_app_apis.services.impl;
 import com.codeblog.blog.blog_app_apis.entities.Category;
 import com.codeblog.blog.blog_app_apis.exceptions.ResourceNotFoundException;
 import com.codeblog.blog.blog_app_apis.payloads.CategoryDto;
-import com.codeblog.blog.blog_app_apis.repository.CtaegoryRepo;
+import com.codeblog.blog.blog_app_apis.repository.CategoryRepo;
 import com.codeblog.blog.blog_app_apis.services.CategoryService;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class CategoryServiceImpl implements CategoryService {
 
-    @Autowired
-    private CtaegoryRepo ctaegoryRepo;
-
-    @Autowired
-    private ModelMapper modelMapper;
+    private final CategoryRepo categoryRepo;
+    private final ModelMapper modelMapper;
 
     @Override
     public CategoryDto createCategory(CategoryDto categoryDto) {
-        Category cat=this.modelMapper.map(categoryDto,Category.class);
-        Category addedCat=  this.ctaegoryRepo.save(cat);
-        return this.modelMapper.map(addedCat,CategoryDto.class) ;
+        Category category = modelMapper.map(categoryDto, Category.class);
+        Category saved = categoryRepo.save(category);
+        return modelMapper.map(saved, CategoryDto.class);
     }
 
     @Override
-    public CategoryDto updateCategory(CategoryDto categoryDto ,Integer categoryId) {
-        Category cat= this.ctaegoryRepo.findById(categoryId)
-                .orElseThrow(()-> new ResourceNotFoundException("Category","Category Id",categoryId));
-        cat.setCategoryTitle(categoryDto.getCategoryTitle());
-        cat.setCategoryDescription(categoryDto.getCategoryDescription());
-        Category updatedCat= this.ctaegoryRepo.save(cat);
-        return this.modelMapper.map(updatedCat,CategoryDto.class);
+    public CategoryDto updateCategory(CategoryDto categoryDto, Integer categoryId) {
+        Category category = categoryRepo.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
+
+        category.setCategoryTitle(categoryDto.getCategoryTitle());
+        category.setCategoryDescription(categoryDto.getCategoryDescription());
+
+        return modelMapper.map(categoryRepo.save(category), CategoryDto.class);
     }
 
     @Override
-    public void deletecategory(Integer categoryId) {
-        Category cat = this.ctaegoryRepo.findById(categoryId)
-                .orElseThrow(()->new ResourceNotFoundException("Caegory","categoryId",categoryId));
-        this.ctaegoryRepo.delete(cat);
+    public void deleteCategory(Integer categoryId) {
+        Category category = categoryRepo.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
+        categoryRepo.delete(category);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public CategoryDto getCategory(Integer categoryId) {
-        Category cat =this.ctaegoryRepo.findById(categoryId)
-                .orElseThrow(()-> new ResourceNotFoundException("Category","categoryId",categoryId));
-        return this.modelMapper.map(cat,CategoryDto.class);
+        Category category = categoryRepo.findById(categoryId)
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
+        return modelMapper.map(category, CategoryDto.class);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<CategoryDto> getCategories() {
-        List<Category> categories=this.ctaegoryRepo.findAll();
-        List<CategoryDto> catDtos =categories
+        return categoryRepo.findAll()
                 .stream()
-                .map((cat)->this.modelMapper
-                        .map(cat ,CategoryDto.class)).collect(Collectors.toList());
-        return catDtos;
+                .map(cat -> modelMapper.map(cat, CategoryDto.class))
+                .toList();
     }
 }

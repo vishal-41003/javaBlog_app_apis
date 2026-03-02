@@ -18,12 +18,23 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
-    @Column(name="user_name", nullable=false,length = 100)
+    @Column(name="user_name", nullable=false, length = 100)
     private String name;
-    private  String email;
+
+    @Column(nullable = false, unique = true, length = 150)
+    private String email;
+
+    @Column(nullable = false, length = 255)
     private String password;
+
+    @Column(length = 500)
     private String about;
 
-    @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
-    private List<Post>posts = new ArrayList<>();
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY,
+            orphanRemoval = true
+    )
+    private List<Post> posts = new ArrayList<>();
 }

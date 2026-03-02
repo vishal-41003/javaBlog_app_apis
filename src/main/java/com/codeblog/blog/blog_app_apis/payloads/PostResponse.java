@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @NoArgsConstructor
@@ -11,10 +12,10 @@ import java.util.List;
 @Setter
 public class PostResponse {
 
-    private List<PostDto> content;
+    private List<PostDto> content = new ArrayList<>();
     private int pageNumber;
     private int pageSize;
     private long totalElements;
     private int totalPages;
-    private boolean lastpage;
+    private boolean lastPage;
 }

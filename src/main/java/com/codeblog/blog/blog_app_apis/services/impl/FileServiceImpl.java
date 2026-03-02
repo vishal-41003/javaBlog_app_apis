@@ -7,38 +7,51 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public class FileServiceImpl implements FileService {
+
     @Override
     public String uploadImage(String path, MultipartFile file) throws IOException {
-        //FileName
-        String name=file.getOriginalFilename();
-        //abc.png
 
-        //random name generateFile
-        String randomId= UUID.randomUUID().toString();
-        String fileName1=randomId.concat(name.substring(name.lastIndexOf(".")));
+        String originalName = file.getOriginalFilename();
 
-        //FullPath
-        String filePath=path+ File.separator+fileName1;
-
-        //create folder if Not created
-        File f= new File(path);
-        if (!f.exists()){
-            f.mkdir();
+        if (originalName == null || originalName.isBlank()) {
+            throw new IllegalArgumentException("File name is invalid");
         }
 
-        //file copy
-        Files.copy(file.getInputStream(), Paths.get(filePath));
-        return name;
+        String extension = originalName.substring(originalName.lastIndexOf(".") + 1);
+
+        List<String> allowedExtensions = List.of("png", "jpg", "jpeg");
+
+        if (!allowedExtensions.contains(extension.toLowerCase())) {
+            throw new IllegalArgumentException("Only PNG, JPG, JPEG files are allowed");
+        }
+
+        String randomId = UUID.randomUUID().toString();
+        String fileName = randomId + "." + extension;
+
+        File folder = new File(path);
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+
+        String filePath = path + File.separator + fileName;
+
+        Files.copy(file.getInputStream(),
+                Paths.get(filePath),
+                StandardCopyOption.REPLACE_EXISTING);
+
+        return fileName;
     }
 
     @Override
     public InputStream getResource(String path, String fileName) throws FileNotFoundException {
-        String fullPath=path+File.separator+fileName;
-        InputStream is = new FileInputStream(fullPath);
-        return is;
+
+        String fullPath = path + File.separator + fileName;
+        return new FileInputStream(fullPath);
     }
 }

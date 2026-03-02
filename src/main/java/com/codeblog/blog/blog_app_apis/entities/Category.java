@@ -19,12 +19,17 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer categoryId;
 
-    @Column(name = "title")
+    @Column(name = "title", nullable = false, length = 100, unique = true)
     private String categoryTitle;
 
-    @Column(name = "description")
+    @Column(name = "description", length = 500)
     private String categoryDescription;
 
-    @OneToMany(mappedBy = "category",cascade = CascadeType.ALL)
-    private List<Post> posts=new ArrayList<>();
+    @OneToMany(
+            mappedBy = "category",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY,
+            orphanRemoval = true
+    )
+    private List<Post> posts = new ArrayList<>();
 }
