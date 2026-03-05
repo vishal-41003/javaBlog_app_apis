@@ -7,33 +7,31 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMapper {
 
-    public UserDto toDto(User user) {
+    // DTO → Entity
+    public User dtoToUser(UserDto userDto) {
 
-        if (user == null) {
-            return null;
-        }
+        User user = new User();
+
+        user.setId(userDto.getId());
+        user.setName(userDto.getName());
+        user.setEmail(userDto.getEmail());
+        user.setPassword(userDto.getPassword());
+        user.setAbout(userDto.getAbout());
+
+        return user;
+    }
+
+    // Entity → DTO
+    public UserDto userToDto(User user) {
 
         UserDto dto = new UserDto();
+
         dto.setId(user.getId());
         dto.setName(user.getName());
         dto.setEmail(user.getEmail());
+        dto.setPassword(user.getPassword());
         dto.setAbout(user.getAbout());
 
         return dto;
-    }
-
-    public User toEntity(UserDto dto) {
-
-        if (dto == null) {
-            return null;
-        }
-
-        User user = new User();
-        user.setId(dto.getId());
-        user.setName(dto.getName());
-        user.setEmail(dto.getEmail());
-        user.setAbout(dto.getAbout());
-
-        return user;
     }
 }

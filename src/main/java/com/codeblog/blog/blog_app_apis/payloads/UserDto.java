@@ -6,6 +6,9 @@ import lombok.NoArgsConstructor;
 import lombok.NonNull;
 import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @NoArgsConstructor
 @Getter
 @Setter
@@ -33,4 +36,6 @@ public class UserDto {
     @NotBlank(message = "About is required")
     @Size(max = 500, message = "About cannot exceed 500 characters")
     private String about;
+
+    private Set<RoleDto> roles=new HashSet<>();
 }

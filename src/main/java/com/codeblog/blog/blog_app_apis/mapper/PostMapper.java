@@ -32,7 +32,7 @@ public class PostMapper {
         dto.setImageName(post.getImageName());
         dto.setAddedDate(post.getAddedDate());
 
-        dto.setUser(userMapper.toDto(post.getUser()));
+        dto.setUser(userMapper.userToDto(post.getUser()));
         dto.setCategory(categoryMapper.toDto(post.getCategory()));
 
         if (post.getComments() != null) {
