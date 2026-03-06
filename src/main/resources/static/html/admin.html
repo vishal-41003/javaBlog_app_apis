@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Admin Dashboard</title>
+
+    <link rel="stylesheet" href="css/style.css">
+
+    <script src="js/api.js"></script>
+    <script src="js/admin.js"></script>
+
+</head>
+
+<body onload="loadAdminData()">
+
+<div class="container">
+
+    <h2>Admin Dashboard</h2>
+
+    <button onclick="loadUsers()">View Users</button>
+    <button onclick="loadPosts()">View Posts</button>
+    <button onclick="loadCategories()">View Categories</button>
+
+    <hr>
+
+    <div id="adminData"></div>
+
+</div>
+
+</body>
+</html>

@@ -1,33 +1,28 @@
-function createPost() {
+function createPost(){
 
-    const userId = document.getElementById("userId").value;
-    const categoryId = document.getElementById("categoryId").value;
+    fetch("http://localhost:8080/api/posts",{
 
-    const post = {
-        title: document.getElementById("title").value,
-        content: document.getElementById("content").value
-    };
+        method:"POST",
 
-    apiRequest(`/users/${userId}/categories/${categoryId}/posts`, "POST", post)
-        .then(() => alert("Post Created"))
-        .catch(() => alert("Error"));
-}
+        headers:getAuthHeader(),
 
-function getPosts() {
+        body:JSON.stringify({
 
-    apiRequest("/posts")
-        .then(data => {
+            title:document.getElementById("title").value,
+            content:document.getElementById("content").value
 
-            const div = document.getElementById("posts");
-            div.innerHTML = "";
+        })
 
-            data.content.forEach(post => {
-                div.innerHTML += `
-                    <div class="post">
-                        <h3>${post.title}</h3>
-                        <p>${post.content}</p>
-                    </div>
-                `;
-            });
+    })
+
+        .then(res=>res.json())
+
+        .then(data=>{
+
+            alert("Post Created");
+
+            window.location.href="index.html";
+
         });
+
 }

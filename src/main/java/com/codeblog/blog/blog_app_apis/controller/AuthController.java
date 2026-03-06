@@ -29,7 +29,7 @@ public class AuthController {
 
     private final JwtTokenHelper jwtTokenHelper;
     private final UserDetailsService userDetailsService;
-    private AuthenticationManager authenticationManager;
+    private final AuthenticationManager authenticationManager;
     private final UserService userService;
 
     @PostMapping("/login")

@@ -25,25 +25,20 @@ public class BlogAppApisApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		System.out.println(passwordEncoder.encode("vishal@123"));
 
-		try{
-			Role role=new Role();
+		if (roleRepo.count() == 0) {
+
+			Role role = new Role();
 			role.setId(AppConstants.ROLE_ADMIN);
 			role.setName("ROLE_ADMIN");
 
-			Role role1=new Role();
+			Role role1 = new Role();
 			role1.setId(AppConstants.ROLE_USER);
 			role1.setName("ROLE_USER");
 
-			List<Role>roles=List.of(role, role1);
-			List<Role>result=this.roleRepo.saveAll(roles);
+			roleRepo.saveAll(List.of(role, role1));
 
-			result.forEach(r->{
-				System.out.println(r.getName());
-			});
-		}catch (Exception e){
-			e.printStackTrace();
+			System.out.println("Default roles inserted successfully");
 		}
 	}
 }
