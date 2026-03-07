@@ -4,6 +4,7 @@ import com.codeblog.blog.blog_app_apis.security.CustomUserDetailService;
 import com.codeblog.blog.blog_app_apis.security.JwtAuthenticationEntryPoint;
 import com.codeblog.blog.blog_app_apis.security.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -19,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
@@ -31,6 +33,8 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+        log.info("Initializing Spring Security configuration");
 
         http
                 .csrf(csrf -> csrf.disable())
@@ -48,7 +52,11 @@ public class SecurityConfig {
                                 "/api/v1/auth/**",
                                 "/v3/api-docs/**",
                                 "/swagger-ui/**",
-                                "/swagger-ui.html"
+                                "/swagger-ui.html",
+                                "/pages/**",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**"
                         ).permitAll()
 
                         .anyRequest().authenticated()
@@ -59,11 +67,15 @@ public class SecurityConfig {
         http.addFilterBefore(jwtAuthenticationFilter,
                 UsernamePasswordAuthenticationFilter.class);
 
+        log.info("JWT Authentication Filter added to Security Filter Chain");
+
         return http.build();
     }
 
     @Bean
     public AuthenticationProvider authenticationProvider() {
+
+        log.debug("Creating AuthenticationProvider");
 
         DaoAuthenticationProvider provider =
                 new DaoAuthenticationProvider(customUserDetailService);
@@ -76,6 +88,8 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(
             AuthenticationConfiguration configuration) throws Exception {
+
+        log.debug("Creating AuthenticationManager");
 
         return configuration.getAuthenticationManager();
     }

@@ -21,7 +21,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -35,11 +40,19 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto createPost(PostDto postDto, Integer userId, Integer categoryId) {
 
+        log.info("Creating post for userId={} and categoryId={}", userId, categoryId);
+
         User user = userRepo.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "userId", userId));
+                .orElseThrow(() -> {
+                    log.error("User not found with id={}", userId);
+                    return new ResourceNotFoundException("User", "userId", userId);
+                });
 
         Category category = categoryRepo.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
+                .orElseThrow(() -> {
+                    log.error("Category not found with id={}", categoryId);
+                    return new ResourceNotFoundException("Category", "categoryId", categoryId);
+                });
 
         Post post = postMapper.toEntity(postDto);
 
@@ -50,14 +63,21 @@ public class PostServiceImpl implements PostService {
 
         Post savedPost = postRepo.save(post);
 
+        log.info("Post created successfully with id={} and title={}", savedPost.getPostId(), savedPost.getTitle());
+
         return postMapper.toDto(savedPost);
     }
 
     @Override
     public PostDto updatePost(PostDto postDto, Integer postId) {
 
+        log.info("Updating post with id={}", postId);
+
         Post post = postRepo.findById(postId)
-                .orElseThrow(() -> new ResourceNotFoundException("Post", "postId", postId));
+                .orElseThrow(() -> {
+                    log.error("Post not found with id={}", postId);
+                    return new ResourceNotFoundException("Post", "postId", postId);
+                });
 
         post.setTitle(postDto.getTitle());
         post.setContent(postDto.getContent());
@@ -68,22 +88,34 @@ public class PostServiceImpl implements PostService {
 
         Post updatedPost = postRepo.save(post);
 
+        log.info("Post updated successfully with id={}", postId);
+
         return postMapper.toDto(updatedPost);
     }
 
     @Override
     public void deletePost(Integer postId) {
 
+        log.info("Deleting post with id={}", postId);
+
         Post post = postRepo.findById(postId)
-                .orElseThrow(() -> new ResourceNotFoundException("Post", "postId", postId));
+                .orElseThrow(() -> {
+                    log.error("Post not found with id={}", postId);
+                    return new ResourceNotFoundException("Post", "postId", postId);
+                });
 
         postRepo.delete(post);
+
+        log.info("Post deleted successfully with id={}", postId);
     }
 
     @Override
     @Transactional(readOnly = true)
     public PostResponse getAllPost(Integer pageNumber, Integer pageSize,
                                    String sortBy, String sortDir) {
+
+        log.debug("Fetching posts pageNumber={}, pageSize={}, sortBy={}, sortDir={}",
+                pageNumber, pageSize, sortBy, sortDir);
 
         Sort sort = sortDir.equalsIgnoreCase("asc")
                 ? Sort.by(sortBy).ascending()
@@ -106,6 +138,8 @@ public class PostServiceImpl implements PostService {
         response.setTotalPages(pagePost.getTotalPages());
         response.setLastPage(pagePost.isLast());
 
+        log.info("Fetched {} posts from database", postDtos.size());
+
         return response;
     }
 
@@ -113,8 +147,13 @@ public class PostServiceImpl implements PostService {
     @Transactional(readOnly = true)
     public PostDto getPostById(Integer postId) {
 
+        log.debug("Fetching post by id={}", postId);
+
         Post post = postRepo.findById(postId)
-                .orElseThrow(() -> new ResourceNotFoundException("Post", "postId", postId));
+                .orElseThrow(() -> {
+                    log.error("Post not found with id={}", postId);
+                    return new ResourceNotFoundException("Post", "postId", postId);
+                });
 
         return postMapper.toDto(post);
     }
@@ -123,35 +162,59 @@ public class PostServiceImpl implements PostService {
     @Transactional(readOnly = true)
     public List<PostDto> getPostByCategory(Integer categoryId) {
 
-        Category category = categoryRepo.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
+        log.debug("Fetching posts by categoryId={}", categoryId);
 
-        return postRepo.findByCategory(category)
+        Category category = categoryRepo.findById(categoryId)
+                .orElseThrow(() -> {
+                    log.error("Category not found with id={}", categoryId);
+                    return new ResourceNotFoundException("Category", "categoryId", categoryId);
+                });
+
+        List<PostDto> posts = postRepo.findByCategory(category)
                 .stream()
                 .map(postMapper::toDto)
                 .toList();
+
+        log.info("Found {} posts for categoryId={}", posts.size(), categoryId);
+
+        return posts;
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<PostDto> getAllPostByUser(Integer userId) {
 
-        User user = userRepo.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "userId", userId));
+        log.debug("Fetching posts for userId={}", userId);
 
-        return postRepo.findByUser(user)
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> {
+                    log.error("User not found with id={}", userId);
+                    return new ResourceNotFoundException("User", "userId", userId);
+                });
+
+        List<PostDto> posts = postRepo.findByUser(user)
                 .stream()
                 .map(postMapper::toDto)
                 .toList();
+
+        log.info("Found {} posts for userId={}", posts.size(), userId);
+
+        return posts;
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<PostDto> searchPost(String keyword) {
 
-        return postRepo.findByTitleContainingIgnoreCase(keyword)
+        log.debug("Searching posts with keyword={}", keyword);
+
+        List<PostDto> posts = postRepo.findByTitleContainingIgnoreCase(keyword)
                 .stream()
                 .map(postMapper::toDto)
                 .toList();
+
+        log.info("Search completed. {} posts found for keyword={}", posts.size(), keyword);
+
+        return posts;
     }
 }

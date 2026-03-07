@@ -4,6 +4,7 @@ import com.codeblog.blog.blog_app_apis.config.AppConstants;
 import com.codeblog.blog.blog_app_apis.entities.Role;
 import com.codeblog.blog.blog_app_apis.repository.RoleRepo;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -12,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 
+@Slf4j
 @SpringBootApplication
 @RequiredArgsConstructor
 public class BlogAppApisApplication implements CommandLineRunner {
@@ -20,11 +22,16 @@ public class BlogAppApisApplication implements CommandLineRunner {
 	private final RoleRepo roleRepo;
 
 	public static void main(String[] args) {
+
 		SpringApplication.run(BlogAppApisApplication.class, args);
+
+		log.info("Blog Application Started Successfully");
 	}
 
 	@Override
-	public void run(String... args) throws Exception {
+	public void run(String... args) {
+
+		log.info("Checking default roles in database");
 
 		if (roleRepo.count() == 0) {
 
@@ -38,7 +45,9 @@ public class BlogAppApisApplication implements CommandLineRunner {
 
 			roleRepo.saveAll(List.of(role, role1));
 
-			System.out.println("Default roles inserted successfully");
+			log.info("Default roles inserted successfully");
+		} else {
+			log.debug("Roles already exist in database");
 		}
 	}
 }

@@ -6,6 +6,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -16,7 +17,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-
+@Slf4j
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
@@ -33,9 +34,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         String path = request.getServletPath();
+        log.debug("Incoming request path: {}", path);
 
         // Skip JWT validation for login and register APIs
         if (path.contains("/api/v1/auth")) {
+            log.debug("Skipping JWT validation for auth endpoint: {}", path);
             filterChain.doFilter(request, response);
             return;
         }
@@ -45,14 +48,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String username = null;
         String token = null;
 
-        //  Check Bearer Token
+        // Check Bearer Token
         if (requestToken != null && requestToken.startsWith("Bearer ")) {
 
             token = requestToken.substring(7);
+            log.debug("JWT token found in Authorization header");
 
             try {
                 username = this.jwtTokenHelper.getUserNameFromToken(token);
+                log.debug("Extracted username from token: {}", username);
+
             } catch (Exception e) {
+
+                log.error("Invalid or expired JWT token: {}", e.getMessage());
 
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json");
@@ -65,7 +73,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
 
         } else {
-            // No token → continue normally
+
+            log.debug("Authorization header missing or does not contain Bearer token");
             filterChain.doFilter(request, response);
             return;
         }
@@ -73,6 +82,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Validate token
         if (username != null &&
                 SecurityContextHolder.getContext().getAuthentication() == null) {
+
+            log.debug("Loading user details for username: {}", username);
 
             UserDetails userDetails =
                     this.userDetailsService.loadUserByUsername(username);
@@ -89,6 +100,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                         new WebAuthenticationDetailsSource().buildDetails(request));
 
                 SecurityContextHolder.getContext().setAuthentication(authentication);
+
+                log.info("JWT authentication successful for user: {}", username);
+
+            } else {
+                log.warn("JWT token validation failed for user: {}", username);
             }
         }
 

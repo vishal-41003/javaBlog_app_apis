@@ -7,6 +7,7 @@ import com.codeblog.blog.blog_app_apis.payloads.UserDto;
 import com.codeblog.blog.blog_app_apis.security.JwtTokenHelper;
 import com.codeblog.blog.blog_app_apis.services.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
@@ -22,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/api/v1/auth/")
@@ -36,12 +38,14 @@ public class AuthController {
     public ResponseEntity<JwtAuthResponse> createToken(
             @RequestBody JwtAuthRequest request) throws Exception {
 
-        authenticate(request.getUsername(), request.getPassword());
+
+        log.info("Login request for user: {}", request.getUsername());
 
         UserDetails userDetails =
                 userDetailsService.loadUserByUsername(request.getUsername());
 
         String token = jwtTokenHelper.generateToken(userDetails);
+        log.info("JWT token generated for user: {}", request.getUsername());
 
         JwtAuthResponse response = new JwtAuthResponse();
         response.setToken(token);
@@ -57,7 +61,7 @@ public class AuthController {
         try{
             authenticationManager.authenticate(authenticationToken);
         }catch (BadCredentialsException e){
-            System.out.println("Invalid Details !!");
+           log.error("Invalid login attempt for user: {}",username);
             throw  new ApiException("Invalid userName or password !!");
         }
 
@@ -67,7 +71,9 @@ public class AuthController {
     //register new user api
     @PostMapping("/register")
     public  ResponseEntity<UserDto> registerUser(@RequestBody UserDto userDto){
+        log.info("Registering New user:{}",userDto.getEmail());
         UserDto registeredUser=this.userService.registerNewUser(userDto);
+        log.info("User registered successfully:{}",registeredUser.getEmail());
         return new ResponseEntity<UserDto>(registeredUser,HttpStatus.CREATED);
     }
 

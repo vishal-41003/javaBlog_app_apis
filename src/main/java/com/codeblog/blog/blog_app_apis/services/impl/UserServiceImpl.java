@@ -9,6 +9,7 @@ import com.codeblog.blog.blog_app_apis.mapper.UserMapper;
 import com.codeblog.blog.blog_app_apis.payloads.UserDto;
 import com.codeblog.blog.blog_app_apis.repository.RoleRepo;
 import com.codeblog.blog.blog_app_apis.repository.UserRepo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -30,23 +32,34 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto registerNewUser(UserDto userDto) {
 
+        log.info("Registering new user with email={}", userDto.getEmail());
+
         User user = this.userMapper.dtoToUser(userDto);
 
         user.setPassword(this.passwordEncoder.encode(user.getPassword()));
 
         Role role = this.roleRepo.findById(AppConstants.ROLE_USER)
-                .orElseThrow(() -> new RuntimeException("Role not found"));
+                .orElseThrow(() -> {
+                    log.error("Default role not found");
+                    return new RuntimeException("Role not found");
+                });
 
         user.getRoles().add(role);
 
         User savedUser = this.userRepo.save(user);
+
+        log.info("User registered successfully with id={}", savedUser.getId());
 
         return this.userMapper.userToDto(savedUser);
     }
 
     @Override
     public UserDto createUser(UserDto userDto) {
+
+        log.info("Creating user with email={}", userDto.getEmail());
+
         if (userRepo.existsByEmail(userDto.getEmail())) {
+            log.warn("Email already registered: {}", userDto.getEmail());
             throw new RuntimeException("Email already registered!");
         }
 
@@ -54,21 +67,21 @@ public class UserServiceImpl implements UserService {
 
         User savedUser = userRepo.save(user);
 
+        log.info("User created successfully with id={}", savedUser.getId());
+
         return userMapper.userToDto(savedUser);
     }
 
     @Override
     public UserDto updateUser(UserDto userDto, Integer userId) {
 
+        log.info("Updating user with id={}", userId);
+
         User user = userRepo.findById(userId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User", "Id", userId));
-
-        if (!user.getEmail().equals(userDto.getEmail()) &&
-                userRepo.existsByEmail(userDto.getEmail())) {
-
-            throw new RuntimeException("Email already registered!");
-        }
+                .orElseThrow(() -> {
+                    log.error("User not found with id={}", userId);
+                    return new ResourceNotFoundException("User", "Id", userId);
+                });
 
         user.setName(userDto.getName());
         user.setEmail(userDto.getEmail());
@@ -77,6 +90,8 @@ public class UserServiceImpl implements UserService {
 
         User updatedUser = userRepo.save(user);
 
+        log.info("User updated successfully with id={}", userId);
+
         return userMapper.userToDto(updatedUser);
     }
 
@@ -84,9 +99,13 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     public UserDto getUserByID(Integer userId) {
 
+        log.debug("Fetching user with id={}", userId);
+
         User user = userRepo.findById(userId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User", "Id", userId));
+                .orElseThrow(() -> {
+                    log.error("User not found with id={}", userId);
+                    return new ResourceNotFoundException("User", "Id", userId);
+                });
 
         return userMapper.userToDto(user);
     }
@@ -94,6 +113,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     public List<UserDto> getAllUsers() {
+
+        log.debug("Fetching all users from database");
 
         return userRepo.findAll()
                 .stream()
@@ -104,10 +125,16 @@ public class UserServiceImpl implements UserService {
     @Override
     public void deleteUser(Integer userId) {
 
+        log.warn("Deleting user with id={}", userId);
+
         User user = userRepo.findById(userId)
-                .orElseThrow(() ->
-                        new ResourceNotFoundException("User", "Id", userId));
+                .orElseThrow(() -> {
+                    log.error("User not found with id={}", userId);
+                    return new ResourceNotFoundException("User", "Id", userId);
+                });
 
         userRepo.delete(user);
+
+        log.info("User deleted successfully with id={}", userId);
     }
 }
