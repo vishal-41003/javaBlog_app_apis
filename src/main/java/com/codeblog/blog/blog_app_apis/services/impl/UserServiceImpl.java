@@ -38,11 +38,28 @@ public class UserServiceImpl implements UserService {
 
         user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
-        Role role = this.roleRepo.findById(AppConstants.ROLE_USER)
-                .orElseThrow(() -> {
-                    log.error("Default role not found");
-                    return new RuntimeException("Role not found");
-                });
+        Role role;
+
+        // Check if this is the first user
+        if(userRepo.count() == 0){
+
+            log.info("First user detected. Assigning ADMIN role");
+
+            role = roleRepo.findById(AppConstants.ROLE_ADMIN)
+                    .orElseThrow(() -> {
+                        log.error("Admin role not found");
+                        return new RuntimeException("Admin Role not found");
+                    });
+
+        } else {
+
+            role = roleRepo.findById(AppConstants.ROLE_USER)
+                    .orElseThrow(() -> {
+                        log.error("User role not found");
+                        return new RuntimeException("User Role not found");
+                    });
+
+        }
 
         user.getRoles().add(role);
 

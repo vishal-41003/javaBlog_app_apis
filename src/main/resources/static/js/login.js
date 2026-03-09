@@ -30,7 +30,7 @@ async function login(){
 
             // Role based redirect
             if(data.role === "ROLE_ADMIN"){
-                window.location.href="dashboard.html";
+                window.location.href="admin-dashboard.html";
             }else{
                 window.location.href="dashboard.html";
             }
