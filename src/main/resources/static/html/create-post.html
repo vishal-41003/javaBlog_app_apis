@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Post</title>
+
+    <link rel="stylesheet" href="../css/create-post.css">
+</head>
+
+<body>
+
+<div class="post-container">
+
+    <h2>Create Blog Post</h2>
+
+    <input
+            type="text"
+            id="title"
+            placeholder="Enter Post Title">
+
+    <textarea
+            id="content"
+            placeholder="Write your blog content here...">
+    </textarea>
+
+    <input
+            type="number"
+            id="categoryId"
+            placeholder="Enter Category ID">
+
+    <!-- IMAGE INPUT -->
+    <input type="file" id="imageFile" accept="image/*">
+
+    <br><br>
+
+    <!-- SINGLE BUTTON -->
+    <button onclick="createPost()">Publish Post</button>
+
+    <p id="message"></p>
+
+</div>
+
+<script src="../js/create-post.js"></script>
+
+</body>
+</html>

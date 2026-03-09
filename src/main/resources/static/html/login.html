@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Blog Login</title>
+
+    <link rel="stylesheet" href="../css/login.css">
+    <link rel="icon" href="/favicon.ico">
+
+</head>
+
+<body>
+
+<div class="login-container">
+
+    <h2>Blog Login</h2>
+
+    <form autocomplete="off">
+
+        <input
+                type="email"
+                id="email"
+                placeholder="Enter Email"
+                autocomplete="off">
+
+        <input
+                type="password"
+                id="password"
+                placeholder="Enter Password"
+                autocomplete="new-password">
+
+        <button type="button" onclick="login()">Login</button>
+
+    </form>
+
+    <p id="error"></p>
+
+    <p>
+        Don't have an account?
+        <a href="register.html">Register</a>
+    </p>
+
+</div>
+
+<script src="../js/login.js"></script>
+
+</body>
+</html>

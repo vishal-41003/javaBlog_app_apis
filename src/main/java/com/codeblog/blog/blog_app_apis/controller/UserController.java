@@ -23,6 +23,7 @@ public class UserController {
 
     private final UserService userService;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/")
     public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto){
 
@@ -62,6 +63,7 @@ public class UserController {
         return ResponseEntity.ok(new ApiResponse("User Deleted Successfully", true));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/")
     public ResponseEntity<List<UserDto>> getAllUsers(){
 
@@ -70,6 +72,7 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllUsers());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{userId}")
     public ResponseEntity<UserDto> getSingleUser(@PathVariable("userId") Integer uid){
 

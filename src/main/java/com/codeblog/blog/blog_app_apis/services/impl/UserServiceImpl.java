@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
 
         User user = this.userMapper.dtoToUser(userDto);
 
-        user.setPassword(this.passwordEncoder.encode(user.getPassword()));
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
 
         Role role = this.roleRepo.findById(AppConstants.ROLE_USER)
                 .orElseThrow(() -> {
@@ -64,6 +64,7 @@ public class UserServiceImpl implements UserService {
         }
 
         User user = userMapper.dtoToUser(userDto);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         User savedUser = userRepo.save(user);
 
@@ -85,7 +86,7 @@ public class UserServiceImpl implements UserService {
 
         user.setName(userDto.getName());
         user.setEmail(userDto.getEmail());
-        user.setPassword(userDto.getPassword());
+        user.setPassword(passwordEncoder.encode(userDto.getPassword()));
         user.setAbout(userDto.getAbout());
 
         User updatedUser = userRepo.save(user);

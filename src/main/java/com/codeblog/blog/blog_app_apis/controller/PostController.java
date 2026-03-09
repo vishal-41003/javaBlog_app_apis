@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,6 +38,7 @@ public class PostController {
     private String path;
 
     // CREATE
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/users/{userId}/categories/{categoryId}/posts")
     public ResponseEntity<PostDto> createPost(
             @Valid @RequestBody PostDto postDto,
@@ -95,6 +97,7 @@ public class PostController {
     }
 
     // DELETE
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/posts/{postId}")
     public ResponseEntity<ApiResponse> deletePost(@PathVariable Integer postId) {
 
@@ -106,6 +109,7 @@ public class PostController {
     }
 
     // UPDATE
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/posts/{postId}")
     public ResponseEntity<PostDto> updatePost(
             @Valid @RequestBody PostDto postDto,
@@ -127,24 +131,41 @@ public class PostController {
     }
 
     // IMAGE UPLOAD
-    @PostMapping("/post/image/upload/{postId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @PostMapping("/posts/image/upload/{postId}")
     public ResponseEntity<PostDto> uploadPostImage(
             @RequestParam("image") MultipartFile image,
             @PathVariable Integer postId) throws IOException {
 
         log.info("Uploading image for postId {}", postId);
 
+        // get existing post
         PostDto postDto = this.postService.getPostById(postId);
 
+        // upload image
         String fileName = this.fileService.uploadImage(path, image);
 
+        // set image name
         postDto.setImageName(fileName);
 
+        // update post
         PostDto updatedPost = this.postService.updatePost(postDto, postId);
 
         log.info("Image uploaded successfully for post {}", postId);
 
-        return new ResponseEntity<>(updatedPost, HttpStatus.OK);
+        return ResponseEntity.ok(updatedPost);
+    }
+
+    @GetMapping(value="/posts/image/{imageName}", produces = MediaType.IMAGE_JPEG_VALUE)
+    public void downloadImage(
+            @PathVariable String imageName,
+            HttpServletResponse response) throws IOException {
+
+        InputStream resource = this.fileService.getResource(path, imageName);
+
+        response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+
+        StreamUtils.copy(resource, response.getOutputStream());
     }
 
 }

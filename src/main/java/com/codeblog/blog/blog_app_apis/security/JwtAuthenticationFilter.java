@@ -36,9 +36,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
         log.debug("Incoming request path: {}", path);
 
-        // Skip JWT validation for login and register APIs
-        if (path.contains("/api/v1/auth")) {
-            log.debug("Skipping JWT validation for auth endpoint: {}", path);
+// Skip authentication for public resources
+        if (path.startsWith("/api/v1/auth") ||
+                path.startsWith("/html") ||
+                path.startsWith("/css") ||
+                path.startsWith("/js") ||
+                path.startsWith("/images") ||
+                path.equals("/favicon.ico")) {
+
+            log.debug("Skipping JWT validation for public resource: {}", path);
             filterChain.doFilter(request, response);
             return;
         }

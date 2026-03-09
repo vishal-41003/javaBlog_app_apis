@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Post</title>
+
+    <link rel="stylesheet" href="../css/create-post.css">
+
+</head>
+<body>
+
+<div class="post-container">
+
+    <h2>Edit Blog Post</h2>
+
+    <input type="text" id="title" placeholder="Post Title">
+
+    <textarea id="content" placeholder="Write your blog content"></textarea>
+
+    <input type="number" id="categoryId" placeholder="Category ID">
+
+    <br><br>
+
+    <!-- current image -->
+    <img id="previewImage" width="200">
+
+    <br><br>
+
+    <!-- upload new image -->
+    <input type="file" id="image">
+
+    <br><br>
+
+    <button onclick="updatePost()">Update Post</button>
+
+    <p id="message"></p>
+
+</div>
+
+<script src="../js/edit-post.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Blog Dashboard</title>
+
+    <link rel="stylesheet" href="../css/dashboard.css">
+</head>
+
+<body>
+
+<div class="navbar">
+
+    <h2>My Blog</h2>
+
+    <div class="nav-right">
+<!--        <span id="username"></span>-->
+        <button id="create-post-btn" onclick="goToCreatePost()">
+            Create Post
+        </button>
+        <button onclick="logout()">Logout</button>
+    </div>
+
+</div>
+
+<div class="container">
+
+    <h1>Posts</h1>
+
+    <div id="post-container"></div>
+
+    <div class="pagination">
+        <button onclick="prevPage()">Previous</button>
+        <span id="page-number"></span>
+        <button onclick="nextPage()">Next</button>
+    </div>
+
+</div>
+
+<script src="../js/dashboard.js"></script>
+
+</body>
+</html>

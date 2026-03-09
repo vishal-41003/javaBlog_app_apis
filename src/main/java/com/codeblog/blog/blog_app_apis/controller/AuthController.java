@@ -38,21 +38,29 @@ public class AuthController {
     public ResponseEntity<JwtAuthResponse> createToken(
             @RequestBody JwtAuthRequest request) throws Exception {
 
-
         log.info("Login request for user: {}", request.getUsername());
+
+        authenticate(request.getUsername(), request.getPassword());
 
         UserDetails userDetails =
                 userDetailsService.loadUserByUsername(request.getUsername());
 
         String token = jwtTokenHelper.generateToken(userDetails);
-        log.info("JWT token generated for user: {}", request.getUsername());
 
         JwtAuthResponse response = new JwtAuthResponse();
         response.setToken(token);
+        response.setUsername(userDetails.getUsername());
+
+        // Extract role from authorities
+        String role = userDetails.getAuthorities()
+                .iterator()
+                .next()
+                .getAuthority();
+
+        response.setRole(role);
 
         return ResponseEntity.ok(response);
     }
-
     private void authenticate(String username, String password) throws Exception {
 
         UsernamePasswordAuthenticationToken authenticationToken =
