@@ -5,15 +5,24 @@ async function createPost(){
     let categoryId = document.getElementById("categoryId").value;
     let imageFile = document.getElementById("imageFile").files[0];
 
-    let userId = 1;
-
     let token = localStorage.getItem("token");
+
+    if(!token){
+        window.location.href = "/html/login.html";
+        return;
+    }
+
+    if(!title || !content){
+        document.getElementById("message").innerText =
+            "Title and Content are required";
+        return;
+    }
 
     try{
 
         // STEP 1: CREATE POST
         let response = await fetch(
-            `http://localhost:8080/api/users/${userId}/categories/${categoryId}/posts`,
+            `http://localhost:8080/api/posts/categories/${categoryId}`,
             {
                 method:"POST",
                 headers:{
@@ -24,7 +33,8 @@ async function createPost(){
                     title:title,
                     content:content
                 })
-            });
+            }
+        );
 
         if(!response.ok){
             document.getElementById("message").innerText =
@@ -35,13 +45,13 @@ async function createPost(){
         let data = await response.json();
         let postId = data.postId;
 
-        // STEP 2: UPLOAD IMAGE (if selected)
+        // STEP 2: UPLOAD IMAGE (optional)
         if(imageFile){
 
             let formData = new FormData();
             formData.append("image", imageFile);
 
-            await fetch(
+            let imageResponse = await fetch(
                 `http://localhost:8080/api/posts/image/upload/${postId}`,
                 {
                     method:"POST",
@@ -49,20 +59,26 @@ async function createPost(){
                         "Authorization":"Bearer " + token
                     },
                     body:formData
-                });
+                }
+            );
+
+            if(!imageResponse.ok){
+                console.log("Image upload failed");
+            }
         }
 
         document.getElementById("message").innerText =
             "Post Created Successfully";
 
-        // redirect to dashboard
-        window.location.href = "/html/dashboard.html";
+        setTimeout(()=>{
+            window.location.href = "/html/dashboard.html";
+        },1000);
 
     }catch(error){
 
+        console.error(error);
+
         document.getElementById("message").innerText =
             "Server error";
-
     }
-
 }

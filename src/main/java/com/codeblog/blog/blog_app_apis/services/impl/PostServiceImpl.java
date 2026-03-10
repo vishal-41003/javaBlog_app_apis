@@ -38,22 +38,19 @@ public class PostServiceImpl implements PostService {
     private final PostMapper postMapper;
 
     @Override
-    public PostDto createPost(PostDto postDto, Integer userId, Integer categoryId) {
+    public PostDto createPost(PostDto postDto, String email, Integer categoryId) {
 
-        log.info("Creating post for userId={} and categoryId={}", userId, categoryId);
+        log.info("Creating post for email={} and categoryId={}", email, categoryId);
 
-        User user = userRepo.findById(userId)
-                .orElseThrow(() -> {
-                    log.error("User not found with id={}", userId);
-                    return new ResourceNotFoundException("User", "userId", userId);
-                });
+        // Find user using email from JWT
+        User user = userRepo.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "email", email));
 
+        // Find category
         Category category = categoryRepo.findById(categoryId)
-                .orElseThrow(() -> {
-                    log.error("Category not found with id={}", categoryId);
-                    return new ResourceNotFoundException("Category", "categoryId", categoryId);
-                });
+                .orElseThrow(() -> new ResourceNotFoundException("Category", "categoryId", categoryId));
 
+        // Convert DTO -> Entity
         Post post = postMapper.toEntity(postDto);
 
         post.setImageName("default.png");
@@ -63,7 +60,7 @@ public class PostServiceImpl implements PostService {
 
         Post savedPost = postRepo.save(post);
 
-        log.info("Post created successfully with id={} and title={}", savedPost.getPostId(), savedPost.getTitle());
+        log.info("Post created successfully with id={}", savedPost.getPostId());
 
         return postMapper.toDto(savedPost);
     }

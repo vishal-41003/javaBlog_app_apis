@@ -1,66 +1,25 @@
+/* GLOBAL */
+
 body{
     margin:0;
-    font-family:Arial;
-    background:#111;
+    font-family: Arial, Helvetica, sans-serif;
+    background:#071a35;
     color:white;
 }
+
+
+/* NAVBAR */
 
 .navbar{
     display:flex;
     justify-content:space-between;
-    padding:20px;
+    align-items:center;
+    padding:18px 40px;
     background:#1e1e1e;
 }
 
-button{
-    padding:8px 15px;
-    background:#ff6b00;
-    border:none;
-    color:white;
-    cursor:pointer;
-}
-
-.container{
-    padding:30px;
-}
-
-.post{
-    background:#1f1f1f;
-    padding:20px;
-    margin-bottom:20px;
-    border-radius:8px;
-}
-
-.post img{
-    width:100%;
-    max-height:200px;
-    object-fit:cover;
-    border-radius:5px;
-}
-
-.pagination{
-    margin-top:20px;
-}
-
-.navbar div button{
-    margin-left:10px;
-}
-
-.post-card{
-    background:white;
-    color:black;
-    padding:20px;
-    margin-bottom:15px;
-    border-radius:8px;
-    box-shadow:0 4px 10px rgba(0,0,0,0.1);
-}
-
-.post-card h3{
+.navbar h2{
     margin:0;
-}
-
-.post-card p{
-    color:#555;
 }
 
 .nav-right{
@@ -69,7 +28,108 @@ button{
     gap:15px;
 }
 
-#username{
-    font-weight:bold;
+button{
+    padding:8px 15px;
+    background:#ff7a00;
+    border:none;
+    border-radius:5px;
     color:white;
+    cursor:pointer;
+    font-size:14px;
+}
+
+button:hover{
+    background:#e56700;
+}
+
+
+/* MAIN CONTAINER */
+
+.container{
+    padding:40px;
+}
+
+.container h1{
+    margin-bottom:25px;
+}
+
+
+/* POSTS GRID */
+
+#post-container{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    gap:25px;
+}
+
+
+/* POST CARD */
+
+.post{
+    background:#1f2f46;
+    padding:20px;
+    border-radius:12px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.4);
+    transition:0.3s;
+}
+
+.post:hover{
+    transform:translateY(-5px);
+}
+
+
+/* POST IMAGE */
+
+.post img{
+    width:100%;
+    height:180px;
+    object-fit:cover;
+    border-radius:8px;
+    margin-bottom:15px;
+}
+
+
+/* POST TITLE */
+
+.post h3{
+    color:#2ecc71;
+    margin-bottom:10px;
+}
+
+
+/* POST CONTENT */
+
+.post p{
+    color:#dcdcdc;
+    font-size:14px;
+}
+
+
+/* POST BUTTONS */
+
+.post-buttons{
+    margin-top:15px;
+}
+
+.post-buttons button{
+    margin-right:10px;
+}
+
+
+/* PAGINATION */
+
+.pagination{
+    margin-top:30px;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    gap:15px;
+}
+
+.pagination button{
+    padding:8px 15px;
+}
+
+#page-number{
+    font-weight:bold;
 }

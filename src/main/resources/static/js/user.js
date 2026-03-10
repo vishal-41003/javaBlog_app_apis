@@ -1,106 +1,85 @@
 const token = localStorage.getItem("token");
 
-window.onload = function(){
+window.onload = function () {
     loadUsers();
 };
 
-async function createUser(){
+async function loadUsers() {
+    let response = await fetch("http://localhost:8080/api/users", {
+        headers: {
+            "Authorization": "Bearer " + token
+        }
+    });
 
+    const users = await response.json();
+
+    let container = document.getElementById("usersList");
+    container.innerHTML = "";
+
+    if (!users || users.length === 0) {
+        container.innerHTML = "<tr><td colspan='5'>No users available.</td></tr>";
+        return;
+    }
+
+    users.forEach(user => {
+        let tr = document.createElement("tr");
+
+        tr.innerHTML = `
+            <td>${user.id}</td>
+            <td>${user.name}</td>
+            <td>${user.email}</td>
+            <td>${user.about.length > 50 ? user.about.slice(0,50) + "..." : user.about}</td>
+            <td>
+                <button class="delete-btn" onclick="deleteUser(${user.id})">Delete</button>
+            </td>
+        `;
+
+        container.appendChild(tr);
+    });
+}
+
+async function createUser() {
     let name = document.getElementById("name").value;
     let email = document.getElementById("email").value;
     let password = document.getElementById("password").value;
     let about = document.getElementById("about").value;
 
-    let response = await fetch("http://localhost:8080/api/users",{
-
-        method:"POST",
-
-        headers:{
-            "Content-Type":"application/json",
-            "Authorization":"Bearer "+token
+    let res = await fetch("http://localhost:8080/api/users", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + token
         },
-
-        body:JSON.stringify({
-            name:name,
-            email:email,
-            password:password,
-            about:about
-        })
-
+        body: JSON.stringify({ name, email, password, about })
     });
 
-    if(response.ok){
+    let message = document.getElementById("message");
 
-        document.getElementById("message").innerText="User created successfully";
-
+    if (res.ok) {
+        message.innerText = "User created successfully";
         loadUsers();
-
-    }else{
-
-        document.getElementById("message").innerText="Error creating user";
-
+    } else {
+        message.innerText = "Error creating user";
     }
-
 }
 
-async function loadUsers(){
-
-    let response = await fetch("http://localhost:8080/api/users",{
-
-        headers:{
-            "Authorization":"Bearer "+token
+async function deleteUser(id) {
+    let response = await fetch(`http://localhost:8080/api/users/${id}`, {
+        method: "DELETE",
+        headers: {
+            "Authorization": "Bearer " + token
         }
-
     });
 
-    let users = await response.json();
-
-    let container = document.getElementById("userList");
-
-    container.innerHTML="";
-
-    users.forEach(user=>{
-
-        let div = document.createElement("div");
-
-        div.className="user-card";
-
-        div.innerHTML=`
-        <h3>${user.name}</h3>
-        <p>Email: ${user.email}</p>
-        <p>${user.about}</p>
-
-        <button class="delete-btn" onclick="deleteUser(${user.id})">
-        Delete
-        </button>
-        `;
-
-        container.appendChild(div);
-
-    });
-
-}
-
-async function deleteUser(id){
-
-    let response = await fetch(`http://localhost:8080/api/users/${id}`,{
-
-        method:"DELETE",
-
-        headers:{
-            "Authorization":"Bearer "+token
-        }
-
-    });
-
-    if(response.ok){
-
+    if (response.ok) {
         loadUsers();
-
-    }else{
-
+    } else {
         alert("Error deleting user");
-
     }
+}
 
+// Logout
+function logout() {
+    localStorage.removeItem("token");
+    window.location.href = "login.html";
 }

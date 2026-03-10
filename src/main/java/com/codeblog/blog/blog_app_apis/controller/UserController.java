@@ -24,7 +24,7 @@ public class UserController {
     private final UserService userService;
 
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/")
+    @PostMapping
     public ResponseEntity<UserDto> createUser(@Valid @RequestBody UserDto userDto){
 
         log.info("Creating new user with email={}", userDto.getEmail());
@@ -64,7 +64,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/")
+    @GetMapping
     public ResponseEntity<List<UserDto>> getAllUsers(){
 
         log.debug("Fetching all users");

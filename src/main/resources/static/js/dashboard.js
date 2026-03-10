@@ -5,7 +5,6 @@ window.onload = function () {
 
     const username = localStorage.getItem("username");
     const role = localStorage.getItem("role");
-    console.log("current Role: ",role);
 
     if (username) {
         const userElement = document.getElementById("username");
@@ -14,12 +13,20 @@ window.onload = function () {
         }
     }
 
+    // Hide Admin Button if not ADMIN
     if (role !== "ROLE_ADMIN") {
+
+        const adminBtn = document.getElementById("admin-dashboard-btn");
+        if (adminBtn) {
+            adminBtn.style.display = "none";
+        }
+
         const createBtn = document.getElementById("create-post-btn");
         if (createBtn) {
             createBtn.style.display = "none";
         }
     }
+
     loadPosts();
 };
 
@@ -195,6 +202,10 @@ async function deletePost(postId) {
     } catch (error) {
         console.error("Delete Error:", error);
     }
+}
+
+function goToAdminDashboard() {
+    window.location.href = "/html/admin-dashboard.html";
 }
 
 function logout() {

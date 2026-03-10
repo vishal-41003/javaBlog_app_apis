@@ -38,6 +38,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 // Skip authentication for public resources
         if (path.startsWith("/api/v1/auth") ||
+                path.startsWith("/swagger-ui") ||
+                path.startsWith("/v3/api-docs") ||
                 path.startsWith("/html") ||
                 path.startsWith("/css") ||
                 path.startsWith("/js") ||
@@ -57,7 +59,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Check Bearer Token
         if (requestToken != null && requestToken.startsWith("Bearer ")) {
 
-            token = requestToken.substring(7);
+            token = requestToken.substring(7).trim();
             log.debug("JWT token found in Authorization header");
 
             try {

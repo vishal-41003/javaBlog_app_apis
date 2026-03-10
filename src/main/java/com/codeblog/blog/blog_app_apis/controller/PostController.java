@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,7 +28,7 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/posts")
 @RequiredArgsConstructor
 public class PostController {
 
@@ -39,19 +40,19 @@ public class PostController {
 
     // CREATE
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/users/{userId}/categories/{categoryId}/posts")
+    @PostMapping("/categories/{categoryId}")
     public ResponseEntity<PostDto> createPost(
             @Valid @RequestBody PostDto postDto,
-            @PathVariable Integer userId,
-            @PathVariable Integer categoryId) {
+            @PathVariable Integer categoryId,
+            Authentication authentication) {
 
-        log.info("Creating post for userId {} and categoryId {}", userId, categoryId);
+        String email = authentication.getName();
 
-        PostDto createdPost = postService.createPost(postDto, userId, categoryId);
+        log.info("Creating post by user {} in category {}", email, categoryId);
 
-        log.info("Post created successfully with title: {}", createdPost.getTitle());
+        PostDto createdPost = postService.createPost(postDto, email, categoryId);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
+        return new ResponseEntity<>(createdPost, HttpStatus.CREATED);
     }
 
     // GET BY USER
@@ -73,7 +74,7 @@ public class PostController {
     }
 
     // GET ALL
-    @GetMapping("/posts")
+    @GetMapping
     public ResponseEntity<PostResponse> getAllPost(
             @RequestParam(defaultValue = AppConstants.PAGE_NUMBER) Integer pageNumber,
             @RequestParam(defaultValue = AppConstants.PAGE_SIZE) Integer pageSize,
@@ -88,7 +89,7 @@ public class PostController {
     }
 
     // GET BY ID
-    @GetMapping("/posts/{postId}")
+    @GetMapping("/{postId}")
     public ResponseEntity<PostDto> getPostById(@PathVariable Integer postId) {
 
         log.info("Fetching post with id {}", postId);
@@ -98,7 +99,7 @@ public class PostController {
 
     // DELETE
     @PreAuthorize("hasRole('ADMIN')")
-    @DeleteMapping("/posts/{postId}")
+    @DeleteMapping("/{postId}")
     public ResponseEntity<ApiResponse> deletePost(@PathVariable Integer postId) {
 
         log.warn("Deleting post with id {}", postId);
@@ -110,7 +111,7 @@ public class PostController {
 
     // UPDATE
     @PreAuthorize("hasRole('ADMIN')")
-    @PutMapping("/posts/{postId}")
+    @PutMapping("/{postId}")
     public ResponseEntity<PostDto> updatePost(
             @Valid @RequestBody PostDto postDto,
             @PathVariable Integer postId) {
@@ -121,7 +122,7 @@ public class PostController {
     }
 
     // SEARCH
-    @GetMapping("/posts/search")
+    @GetMapping("/search")
     public ResponseEntity<List<PostDto>> searchPostByTitle(
             @RequestParam String keyword) {
 
@@ -132,7 +133,7 @@ public class PostController {
 
     // IMAGE UPLOAD
     @PreAuthorize("hasRole('ADMIN')")
-    @PostMapping("/posts/image/upload/{postId}")
+    @PostMapping("/image/upload/{postId}")
     public ResponseEntity<PostDto> uploadPostImage(
             @RequestParam("image") MultipartFile image,
             @PathVariable Integer postId) throws IOException {
@@ -156,7 +157,7 @@ public class PostController {
         return ResponseEntity.ok(updatedPost);
     }
 
-    @GetMapping(value="/posts/image/{imageName}", produces = MediaType.IMAGE_JPEG_VALUE)
+    @GetMapping(value="/image/{imageName}", produces = MediaType.IMAGE_JPEG_VALUE)
     public void downloadImage(
             @PathVariable String imageName,
             HttpServletResponse response) throws IOException {
