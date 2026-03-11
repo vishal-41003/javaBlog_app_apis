@@ -14,16 +14,16 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/excel")
 public class ExcelController {
 
-
     private final ExcelServiceImpl excelService;
 
-    @PostMapping(value = "/upload",consumes = "multipart/form-data")
-    public ResponseEntity<String> uploadExcel(@RequestParam("file")MultipartFile file){
-        try {
-            excelService.uploadExcel("uploads",file);
-            return  ResponseEntity.ok("Excel uploaded Successfully");
+    @PostMapping(value = "/upload", consumes = "Multipart/form-data")
+    public ResponseEntity<?>uploadExcel(@RequestParam("file") MultipartFile file){
+
+        try{
+            excelService.uploadExcel(file);
+            return ResponseEntity.ok("Excel Uploaded Successfully");
         }catch (Exception e){
-                return ResponseEntity.badRequest().body(e.getMessage());
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 }
